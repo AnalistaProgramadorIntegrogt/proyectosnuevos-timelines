@@ -1,0 +1,421 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════════
+   Íntegro Brand Design System — Proyectos Nuevos Hub
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer base {
+    :root {
+        /* Official brand colors */
+        --integro-black: #000000;
+        --integro-gray: #89888a;
+        --integro-light-gray: #e1e2e4;
+        --integro-red: #c3302d;
+        --integro-white: #ffffff;
+        --integro-gray-text: #747376;
+
+        /* Semantic surfaces — light mode */
+        --surface: var(--integro-white);
+        --surface-inverse: var(--integro-black);
+        --surface-muted: var(--integro-light-gray);
+        --surface-secondary: var(--integro-gray);
+
+        /* Semantic text — light mode */
+        --text-primary: var(--integro-black);
+        --text-inverse: var(--integro-white);
+        --text-muted: var(--integro-gray-text);
+
+        /* Interaction */
+        --accent: var(--integro-red);
+        --accent-hover: #ad2a28;
+        --accent-active: #982523;
+        --focus: var(--integro-red);
+        --danger: var(--integro-red);
+
+        /* Success & warning — functional, subordinate */
+        --success: #2d7d46;
+        --success-foreground: var(--integro-white);
+        --warning: #b8860b;
+        --warning-foreground: var(--integro-white);
+
+        /* Borders */
+        --border-strong: var(--integro-black);
+        --border-default: #b8b8ba;
+        --border-soft: var(--integro-light-gray);
+
+        /* Typography */
+        --font-brand:
+            "Montserrat",
+            "Helvetica Neue",
+            Helvetica,
+            Arial,
+            sans-serif;
+
+        --font-weight-regular: 400;
+        --font-weight-semibold: 600;
+        --font-weight-bold: 700;
+
+        /* Type scale */
+        --type-display-xl: clamp(3.5rem, 7.5vw, 7rem);
+        --type-display: clamp(2.75rem, 5.5vw, 5.5rem);
+        --type-h1: clamp(2.5rem, 4.5vw, 4.75rem);
+        --type-h2: clamp(2rem, 3.5vw, 3.75rem);
+        --type-h3: clamp(1.25rem, 2vw, 1.75rem);
+        --type-body-lg: clamp(1.05rem, 1.2vw, 1.25rem);
+        --type-body: 1rem;
+        --type-small: 0.875rem;
+
+        /* Motion */
+        --duration-fast: 160ms;
+        --duration-base: 220ms;
+        --duration-slow: 480ms;
+        --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
+
+        /* Legacy Jetstream compatibility */
+        --radius: 0.25rem;
+        --card: var(--integro-white);
+        --card-foreground: var(--integro-black);
+        --popover: var(--integro-white);
+        --popover-foreground: var(--integro-black);
+        --primary: var(--integro-black);
+        --primary-foreground: var(--integro-white);
+        --secondary: var(--integro-light-gray);
+        --secondary-foreground: var(--integro-black);
+        --muted: var(--integro-light-gray);
+        --muted-foreground: var(--integro-gray-text);
+        --accent-foreground: var(--integro-white);
+        --destructive: var(--integro-red);
+        --destructive-foreground: var(--integro-white);
+        --input: var(--integro-light-gray);
+        --ring: var(--integro-red);
+        --border: var(--integro-light-gray);
+        --background: var(--integro-white);
+        --foreground: var(--integro-black);
+
+        /* Success/warning mapped for legacy */
+        --success-legacy: var(--success);
+        --success-legacy-foreground: var(--success-foreground);
+        --warning-legacy: var(--warning);
+        --warning-legacy-foreground: var(--warning-foreground);
+
+        /* Sidebar (not used but kept for Jetstream) */
+        --sidebar-background: var(--integro-light-gray);
+        --sidebar-foreground: var(--integro-black);
+        --sidebar-primary: var(--integro-black);
+        --sidebar-primary-foreground: var(--integro-white);
+        --sidebar-accent: #d6d7d9;
+        --sidebar-accent-foreground: var(--integro-black);
+        --sidebar-border: var(--integro-light-gray);
+        --sidebar-ring: var(--integro-red);
+    }
+
+    .dark {
+        --surface: #1a1a1a;
+        --surface-inverse: var(--integro-white);
+        --surface-muted: #2d2d2e;
+        --surface-secondary: #5c5c5e;
+
+        --text-primary: #f0f0f1;
+        --text-inverse: var(--integro-black);
+        --text-muted: #89888a;
+
+        --border-default: #3d3d3e;
+        --border-soft: #2d2d2e;
+
+        --card: #1a1a1a;
+        --card-foreground: #f0f0f1;
+        --popover: #1a1a1a;
+        --popover-foreground: #f0f0f1;
+        --primary: #f0f0f1;
+        --primary-foreground: #1a1a1a;
+        --secondary: #2d2d2e;
+        --secondary-foreground: #f0f0f1;
+        --muted: #2d2d2e;
+        --muted-foreground: #89888a;
+        --input: #3d3d3e;
+        --border: #3d3d3e;
+        --background: #1a1a1a;
+        --foreground: #f0f0f1;
+        --sidebar-background: #1a1a1a;
+        --sidebar-foreground: #f0f0f1;
+        --sidebar-primary: #f0f0f1;
+        --sidebar-primary-foreground: #1a1a1a;
+        --sidebar-accent: #2d2d2e;
+        --sidebar-accent-foreground: #f0f0f1;
+        --sidebar-border: #3d3d3e;
+        --sidebar-ring: var(--integro-red);
+    }
+
+    * {
+        border-color: hsl(var(--border, 0 0% 88%));
+    }
+
+    ::selection {
+        color: var(--integro-white);
+        background: var(--integro-red);
+    }
+
+    html {
+        font-family: var(--font-brand);
+    }
+
+    body {
+        margin: 0;
+        background-color: var(--surface-muted);
+        color: var(--text-primary);
+        font-family: var(--font-brand);
+        font-size: 1rem;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-brand);
+        font-weight: var(--font-weight-bold);
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 3px;
+    }
+}
+
+@layer components {
+    /* ─── Status badges ─── */
+    .status-en-proceso {
+        @apply bg-amber-50 text-amber-800 border border-amber-200;
+    }
+    .status-entregado {
+        @apply bg-green-50 text-green-800 border border-green-200;
+    }
+    .status-aprobado {
+        @apply bg-emerald-50 text-emerald-800 border border-emerald-200;
+    }
+    .status-atrasado {
+        @apply bg-red-50 text-red-800 border border-red-200;
+    }
+    .status-rechazado {
+        @apply bg-gray-100 text-gray-600 border border-gray-200;
+    }
+    .status-pending {
+        @apply bg-gray-100 text-gray-400 border border-gray-100;
+    }
+
+    /* ─── Timeline line ─── */
+    .timeline-line {
+        @apply absolute left-4 top-0 bottom-0 w-0.5 bg-[var(--border-soft)];
+    }
+
+    /* ─── Project card ─── */
+    .project-card {
+        background-color: var(--card);
+        color: var(--card-foreground);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        transition: box-shadow var(--duration-base) var(--ease-brand);
+    }
+
+    .project-card:hover {
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+    }
+
+    /* ─── Primary button (Red = primary CTA) ─── */
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        min-height: 2.75rem;
+        padding: 0.5rem 1.25rem;
+        background-color: var(--integro-red);
+        color: var(--integro-white);
+        border: 1px solid transparent;
+        border-radius: var(--radius);
+        font-family: var(--font-brand);
+        font-weight: var(--font-weight-semibold);
+        font-size: 0.875rem;
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+        text-decoration: none;
+        transition:
+            transform var(--duration-fast) var(--ease-brand),
+            background-color var(--duration-base) var(--ease-brand);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--accent-hover);
+        transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+        background-color: var(--accent-active);
+        transform: translateY(0) scale(0.99);
+    }
+
+    .btn-primary:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 3px;
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ─── Secondary button (Black = secondary) ─── */
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        min-height: 2.75rem;
+        padding: 0.5rem 1.25rem;
+        background-color: transparent;
+        color: var(--integro-black);
+        border: 1px solid var(--integro-black);
+        border-radius: var(--radius);
+        font-family: var(--font-brand);
+        font-weight: var(--font-weight-semibold);
+        font-size: 0.875rem;
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+        text-decoration: none;
+        transition:
+            transform var(--duration-fast) var(--ease-brand),
+            background-color var(--duration-base) var(--ease-brand),
+            color var(--duration-base) var(--ease-brand);
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--integro-black);
+        color: var(--integro-white);
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary:active {
+        transform: translateY(0) scale(0.99);
+    }
+
+    .btn-secondary:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 3px;
+    }
+
+    .btn-secondary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ─── Danger button ─── */
+    .btn-danger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        min-height: 2.75rem;
+        padding: 0.5rem 1.25rem;
+        background-color: var(--integro-red);
+        color: var(--integro-white);
+        border: 1px solid transparent;
+        border-radius: var(--radius);
+        font-family: var(--font-brand);
+        font-weight: var(--font-weight-semibold);
+        font-size: 0.875rem;
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+        text-decoration: none;
+        transition:
+            transform var(--duration-fast) var(--ease-brand),
+            background-color var(--duration-base) var(--ease-brand);
+    }
+
+    .btn-danger:hover {
+        background-color: var(--accent-active);
+        transform: translateY(-1px);
+    }
+
+    .btn-danger:active {
+        transform: translateY(0) scale(0.99);
+    }
+
+    /* ─── Brand heading utility ─── */
+    .brand-display {
+        font-family: var(--font-brand);
+        font-weight: var(--font-weight-bold);
+        letter-spacing: -0.045em;
+        line-height: 0.98;
+    }
+
+    .brand-period {
+        color: var(--integro-red);
+    }
+
+    /* ─── Container ─── */
+    .integro-container {
+        width: min(calc(100% - 2rem), 90rem);
+        margin-inline: auto;
+    }
+
+    /* ─── Section dividers ─── */
+    .section-rule {
+        height: 1px;
+        background-color: var(--border-soft);
+        border: 0;
+    }
+}
+
+@layer utilities {
+    /* ─── Shadow utilities ─── */
+    .shadow-card {
+        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 2px 4px -1px rgb(0 0 0 / 0.04);
+    }
+
+    .shadow-elevated {
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+    }
+
+    .shadow-dialog {
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.12), 0 8px 10px -6px rgb(0 0 0 / 0.08);
+    }
+}
+
+/* ─── Reduced motion ─── */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .btn-primary:hover,
+    .btn-secondary:hover,
+    .btn-danger:hover {
+        transform: none;
+    }
+
+    .btn-primary:active,
+    .btn-secondary:active,
+    .btn-danger:active {
+        transform: none;
+    }
+
+    .project-card:hover {
+        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 2px 4px -1px rgb(0 0 0 / 0.04);
+    }
+}
