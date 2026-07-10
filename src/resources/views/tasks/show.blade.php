@@ -185,6 +185,26 @@
                                             <span>Fin: {{ $subtask->end_date->format('d/m/Y') }}</span>
                                         @endif
                                     </div>
+                                    
+                                    @if($subtask->is_deliverable)
+                                        <div class="mt-4 pt-4 border-t border-muted-100 dark:border-muted-700">
+                                            @if($subtask->status === 'entregado')
+                                                @livewire('tasks.approval-panel', ['task' => $task, 'subtask' => $subtask], key('approval-subtask-' . $subtask->id))
+                                            @elseif($subtask->status === 'en_proceso' || $subtask->status === 'rechazado' || $subtask->status === 'atrasado')
+                                                @if($subtask->status === 'rechazado')
+                                                    <div class="mb-3 bg-red-50 dark:bg-red-900/20 rounded-xl p-3 border border-red-200 dark:border-red-800">
+                                                        <p class="text-xs font-medium text-red-700 dark:text-red-300">❌ Subtarea rechazada</p>
+                                                    </div>
+                                                @endif
+                                                @livewire('tasks.deliverable-upload', ['task' => $task, 'subtask' => $subtask], key('upload-subtask-' . $subtask->id))
+                                            @elseif($subtask->status === 'aprobado')
+                                                <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800">
+                                                    <p class="text-xs font-medium text-emerald-700 dark:text-emerald-300">✅ Subtarea aprobada</p>
+                                                    @livewire('tasks.deliverable-upload', ['task' => $task, 'subtask' => $subtask], key('upload-subtask-' . $subtask->id))
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach

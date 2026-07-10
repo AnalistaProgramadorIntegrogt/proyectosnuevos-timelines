@@ -80,6 +80,21 @@ class UpdateTaskStatuses extends Command
             $updated++;
         }
 
+        // 4. Revert 'atrasado' -> 'en_proceso' if timeline was pushed into the future
+        $tasks = Task::where('status', 'atrasado')
+            ->where('calculated_end_date', '>=', $now->toDateString())
+            ->get();
+
+        foreach ($tasks as $task) {
+            if ($task->is_deliverable && $task->deliverableVersions()->count() > 0) {
+                $task->status = 'entregado';
+            } else {
+                $task->status = 'en_proceso';
+            }
+            $task->save();
+            $updated++;
+        }
+
         return $updated;
     }
 

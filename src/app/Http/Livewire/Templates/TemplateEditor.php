@@ -35,6 +35,7 @@ class TemplateEditor extends Component
     public $subtaskTitle = '';
     public $subtaskDescription = '';
     public $subtaskDurationDays = 1;
+    public $subtaskIsDeliverable = false;
 
     // Version notes
     public $versionNotes = '';
@@ -329,6 +330,7 @@ class TemplateEditor extends Component
             'title' => $this->subtaskTitle,
             'description' => $this->subtaskDescription ?? '',
             'duration_days' => (int) $this->subtaskDurationDays,
+            'is_deliverable' => $this->subtaskIsDeliverable,
             'order' => count($subtasks) + 1,
         ];
         $groups[$groupIndex]['tasks'][$taskIndex]['subtasks'] = $subtasks;
@@ -352,6 +354,7 @@ class TemplateEditor extends Component
         $this->subtaskTitle = $sub['title'];
         $this->subtaskDescription = $sub['description'] ?? '';
         $this->subtaskDurationDays = $sub['duration_days'] ?? 1;
+        $this->subtaskIsDeliverable = $sub['is_deliverable'] ?? false;
     }
 
     public function cancelEditSubtask()
@@ -375,6 +378,7 @@ class TemplateEditor extends Component
         $groups[$groupIndex]['tasks'][$taskIndex]['subtasks'][$subtaskIndex]['title'] = $this->subtaskTitle;
         $groups[$groupIndex]['tasks'][$taskIndex]['subtasks'][$subtaskIndex]['description'] = $this->subtaskDescription ?? '';
         $groups[$groupIndex]['tasks'][$taskIndex]['subtasks'][$subtaskIndex]['duration_days'] = (int) $this->subtaskDurationDays;
+        $groups[$groupIndex]['tasks'][$taskIndex]['subtasks'][$subtaskIndex]['is_deliverable'] = $this->subtaskIsDeliverable;
         $this->setGroups($groups);
 
         $this->editingSubtaskGroupIndex = null;
@@ -435,6 +439,7 @@ class TemplateEditor extends Component
         $this->subtaskTitle = '';
         $this->subtaskDescription = '';
         $this->subtaskDurationDays = 1;
+        $this->subtaskIsDeliverable = false;
     }
 
     // ── Persistence ──

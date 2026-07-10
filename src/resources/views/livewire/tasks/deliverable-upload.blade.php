@@ -1,7 +1,11 @@
 <div class="project-card p-6 space-y-6" x-data="{ dragOver: false }">
     <h3 class="text-lg font-semibold dark:text-white">Subir Entregable</h3>
 
-    @if($task->is_deliverable)
+    @php
+        $target = $isSubtask ? $subtask : $task;
+    @endphp
+
+    @if($target->is_deliverable)
         <!-- Upload Form -->
         <form wire:submit="submitDeliverable" class="space-y-4">
             <!-- Drag & Drop / File Upload -->

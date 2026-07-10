@@ -128,6 +128,55 @@ class ProjectController extends Controller
     }
 
     /**
+     * Display the specified project in a Roadmap (Gantt) view.
+     */
+    public function roadmap(Project $project)
+    {
+        $this->authorize('view', $project);
+
+        $project->load([
+            'owner',
+            'groups' => function ($q) {
+                $q->orderBy('order');
+            },
+            'groups.tasks' => function ($q) {
+                $q->orderBy('order');
+            },
+            'groups.tasks.subtasks'
+        ]);
+
+        $ganttTasks = [];
+        
+        foreach ($project->groups->sortBy('order') as $group) {
+            foreach ($group->tasks->sortBy('order') as $task) {
+                if (!$task->calculated_start_date || !$task->calculated_end_date) continue;
+                
+                // Determine progress based on subtasks if any, or status
+                $progress = 0;
+                if ($task->subtasks->count() > 0) {
+                    $completedSubtasks = $task->subtasks->where('status', 'entregado')->count();
+                    $progress = round(($completedSubtasks / $task->subtasks->count()) * 100);
+                } elseif (in_array($task->status, ['entregado', 'aprobado'])) {
+                    $progress = 100;
+                }
+
+                $ganttTasks[] = [
+                    'id' => 'task_' . $task->id,
+                    'name' => $task->title,
+                    'start' => $task->calculated_start_date->format('Y-m-d'),
+                    'end' => $task->calculated_end_date->copy()->addDay()->format('Y-m-d'), // Frappe usually needs end date exclusive
+                    'progress' => $progress,
+                    'dependencies' => '', // Assuming sequential, or we could link previous tasks
+                    'custom_class' => 'status-' . str_replace('_', '-', $task->status),
+                    'task_id' => $task->id, // custom metadata
+                ];
+            }
+        }
+
+        return view('projects.roadmap', compact('project', 'ganttTasks'));
+    }
+
+    /**
      * Show the form for editing the specified project.
      */
     public function edit(Project $project)
@@ -213,6 +262,7 @@ class ProjectController extends Controller
                         'title' => $subData['title'],
                         'description' => $subData['description'] ?? '',
                         'duration_days' => $subData['duration_days'],
+                        'is_deliverable' => $subData['is_deliverable'] ?? false,
                         'order' => $subOrder++,
                         'status' => 'en_proceso',
                     ]);
@@ -239,7 +289,12 @@ class ProjectController extends Controller
                 $task->calculated_start_date = $currentDate->copy();
                 $task->calculated_end_date = $currentDate->copy()->addDays($task->duration_days - 1);
                 $task->save();
-                $currentDate = $task->calculated_end_date->copy()->addDay();
+                
+                if ($task->real_end_date && Carbon::parse($task->real_end_date)->isAfter($task->calculated_end_date)) {
+                    $currentDate = Carbon::parse($task->real_end_date)->copy()->addDay();
+                } else {
+                    $currentDate = $task->calculated_end_date->copy()->addDay();
+                }
             }
         }
     }

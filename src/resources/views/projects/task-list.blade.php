@@ -244,10 +244,10 @@
                                                     @endforeach
                                                 </select>
                                             </td>
-                                            <td class="px-3 py-2 whitespace-nowrap text-sm text-text-muted">
+                                            <td class="px-3 py-2 whitespace-nowrap text-sm text-text-muted start-date-cell">
                                                 {{ $task->calculated_start_date ? $task->calculated_start_date->format('d/m/Y') : '—' }}
                                             </td>
-                                            <td class="px-3 py-2 whitespace-nowrap text-sm text-text-muted">
+                                            <td class="px-3 py-2 whitespace-nowrap text-sm text-text-muted calc-end-date-cell">
                                                 {{ $task->calculated_end_date ? $task->calculated_end_date->format('d/m/Y') : '—' }}
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap">
@@ -256,18 +256,17 @@
                                                     $calcEndDate = $task->calculated_end_date ? $task->calculated_end_date->format('d/m/Y') : '—';
                                                 @endphp
                                                 <input type="date" value="{{ $realEndDate }}"
-                                                       onchange="saveTask({{ $task->id }}, 'real_end_date', this.value || null)"
-                                                       class="text-xs border border-[var(--border-soft)] rounded px-2 py-1.5 bg-surface text-text-primary focus:ring-2 focus:ring-[var(--integro-red)] w-full">
-                                                @if(!$task->real_end_date)
-                                                    <span class="text-xs text-text-muted italic block mt-0.5">
-                                                        Calc: {{ $calcEndDate }}
-                                                    </span>
-                                                @endif
+                                                       onchange="previewTimeline(this); saveTask({{ $task->id }}, 'real_end_date', this.value || null)"
+                                                       class="real-end-date-input text-xs border border-[var(--border-soft)] rounded px-2 py-1.5 bg-surface text-text-primary focus:ring-2 focus:ring-[var(--integro-red)] w-full">
+                                                <span class="calc-hint text-xs text-text-muted italic block mt-0.5 {{ $task->real_end_date ? 'hidden' : '' }}">
+                                                    Calc: {{ $calcEndDate }}
+                                                </span>
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap">
                                                 <input type="number" min="1" max="30" value="{{ $task->duration_days }}"
+                                                       oninput="previewTimeline(this)"
                                                        onchange="saveTask({{ $task->id }}, 'duration_days', this.value)"
-                                                       class="w-16 text-xs border border-[var(--border-soft)] rounded px-2 py-1.5 bg-surface text-text-primary focus:ring-2 focus:ring-[var(--integro-red)] text-center">
+                                                       class="duration-input w-16 text-xs border border-[var(--border-soft)] rounded px-2 py-1.5 bg-surface text-text-primary focus:ring-2 focus:ring-[var(--integro-red)] text-center">
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap">
                                                 <button onclick="confirmDeleteTask({{ $task->id }}, '{{ addslashes($task->title) }}')"
@@ -631,13 +630,90 @@
             })
             .then(response => response.json())
             .then(data => {
+                // Background save successful, no need to reload since preview is active
                 if (data.success) {
-                    setTimeout(() => window.location.reload(), 500);
+                    // console.log('Autosaved successfully');
                 }
             })
             .catch(error => {
                 console.error('Error saving task:', error);
-                alert('Error al guardar. Por favor intenta de nuevo.');
+                alert('Error al guardar en segundo plano. Por favor, recarga la página.');
+            });
+        }
+
+        // =====================================================================
+        // Live Preview Timeline
+        // =====================================================================
+        const projectStartDateStr = '{{ $project->start_date }}';
+
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            }
+            return new Date(dateStr);
+        }
+
+        function formatDate(dateObj) {
+            if (!dateObj) return '—';
+            const d = dateObj.getDate().toString().padStart(2, '0');
+            const m = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+            const y = dateObj.getFullYear();
+            return `${d}/${m}/${y}`;
+        }
+
+        function isAfter(date1, date2) {
+            if (!date1 || !date2) return false;
+            // set to midnight to compare just dates
+            const d1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
+            const d2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
+            return d1.getTime() > d2.getTime();
+        }
+
+        function previewTimeline() {
+            let currentDate = parseDate(projectStartDateStr);
+            const rows = document.querySelectorAll('tr.task-row');
+
+            rows.forEach(row => {
+                const durationInput = row.querySelector('.duration-input');
+                const realEndDateInput = row.querySelector('.real-end-date-input');
+                const startCell = row.querySelector('.start-date-cell');
+                const endCalcCell = row.querySelector('.calc-end-date-cell');
+                const calcHintSpan = row.querySelector('.calc-hint');
+
+                if (!durationInput || !startCell || !endCalcCell) return;
+
+                const duration = parseInt(durationInput.value) || 1;
+                
+                const calculatedStartDate = new Date(currentDate.getTime());
+                
+                const calculatedEndDate = new Date(currentDate.getTime());
+                calculatedEndDate.setDate(calculatedEndDate.getDate() + (duration - 1));
+
+                startCell.textContent = formatDate(calculatedStartDate);
+                endCalcCell.textContent = formatDate(calculatedEndDate);
+                
+                const realEndDateVal = realEndDateInput ? realEndDateInput.value : null;
+                
+                if (calcHintSpan) {
+                    calcHintSpan.textContent = 'Calc: ' + formatDate(calculatedEndDate);
+                    if (realEndDateVal) {
+                        calcHintSpan.classList.add('hidden');
+                    } else {
+                        calcHintSpan.classList.remove('hidden');
+                    }
+                }
+
+                let realEndDateObj = realEndDateVal ? parseDate(realEndDateVal) : null;
+
+                if (realEndDateObj && isAfter(realEndDateObj, calculatedEndDate)) {
+                    currentDate = new Date(realEndDateObj.getTime());
+                    currentDate.setDate(currentDate.getDate() + 1);
+                } else {
+                    currentDate = new Date(calculatedEndDate.getTime());
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
             });
         }
 

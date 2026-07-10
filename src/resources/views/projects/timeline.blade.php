@@ -12,6 +12,9 @@
                 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-3 flex-wrap mb-2">
+                            <a href="{{ route('projects.index') }}" class="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors" title="Volver a proyectos">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                            </a>
                             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $project->name }}</h1>
                             @if($project->code)
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium bg-muted-100 dark:bg-muted-700 text-muted-600 dark:text-muted-300">
@@ -51,8 +54,11 @@
                                 Editar
                             </a>
                         @endcan
-                        <a href="{{ route('projects.index') }}" class="btn-secondary text-xs !px-3 !py-1">
-                            Volver
+                        <a href="{{ route('projects.roadmap', $project) }}" class="btn-primary text-xs !px-3 !py-1 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            Ver Roadmap
                         </a>
                     </div>
                 </div>
@@ -280,6 +286,14 @@
                                                                             Entregable
                                                                         </span>
                                                                     @endif
+                                                                    @if(!in_array($task->status, ['entregado', 'aprobado']) && $task->baseline_end_date && $task->calculated_end_date && $task->calculated_end_date->isAfter($task->baseline_end_date))
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700" title="La fecha estimada superó la meta original del {{ $task->baseline_end_date->format('d/m/Y') }}">
+                                                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                            </svg>
+                                                                            Atraso previsto
+                                                                        </span>
+                                                                    @endif
                                                                 </div>
                                                             </div>
 
@@ -318,11 +332,19 @@
                                                                 </span>
                                                             @endif
                                                             @if($task->calculated_end_date)
-                                                                <span class="inline-flex items-center gap-1">
+                                                                <span class="inline-flex items-center gap-1" title="Fecha Estimada">
+                                                                    <svg class="w-3.5 h-3.5 text-muted-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                    </svg>
+                                                                    <span class="opacity-80">Est:</span> {{ $task->calculated_end_date->format('d/m/Y') }}
+                                                                </span>
+                                                            @endif
+                                                            @if($task->real_end_date)
+                                                                <span class="inline-flex items-center gap-1 font-medium text-[var(--integro-red)] dark:text-red-400" title="Fecha Real">
                                                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                                     </svg>
-                                                                    {{ $task->calculated_end_date->format('d/m/Y') }}
+                                                                    Real: {{ $task->real_end_date->format('d/m/Y') }}
                                                                 </span>
                                                             @endif
                                                             @if($task->duration_days)

@@ -32,6 +32,7 @@ Route::middleware([
 
     // Task list editor routes
     Route::get('/projects/{project}/tasks/edit-list', [App\Http\Controllers\ProjectTaskListController::class, 'index'])->name('projects.tasks.edit-list');
+    Route::get('/projects/{project}/roadmap', [App\Http\Controllers\ProjectController::class, 'roadmap'])->name('projects.roadmap');
     Route::put('/projects/tasks/{task}', [App\Http\Controllers\ProjectTaskListController::class, 'update'])->name('projects.tasks.update');
     Route::post('/projects/{project}/tasks/reorder', [App\Http\Controllers\ProjectTaskListController::class, 'reorder'])->name('projects.tasks.reorder');
     Route::post('/projects/groups/{group}/tasks', [App\Http\Controllers\ProjectTaskListController::class, 'store'])->name('projects.tasks.store');
@@ -45,4 +46,6 @@ Route::middleware([
         Route::get('/{template}/edit', [App\Http\Controllers\TemplateController::class, 'edit'])->name('edit');
         Route::get('/{template}/versions', [App\Http\Controllers\TemplateController::class, 'versions'])->name('versions');
     });
+
+    Route::get('/repository', App\Http\Livewire\Documents\DocumentExplorer::class)->name('repository.index');
 });

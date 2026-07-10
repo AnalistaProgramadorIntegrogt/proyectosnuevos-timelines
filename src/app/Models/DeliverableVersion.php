@@ -12,6 +12,7 @@ class DeliverableVersion extends Model
 
     protected $fillable = [
         'task_id',
+        'subtask_id',
         'version_number',
         'original_filename',
         'storage_key',
@@ -30,6 +31,11 @@ class DeliverableVersion extends Model
     public function task(): BelongsTo
     {
         return $this->belongsTo(Task::class);
+    }
+
+    public function subtask(): BelongsTo
+    {
+        return $this->belongsTo(Subtask::class);
     }
 
     public function uploader(): BelongsTo

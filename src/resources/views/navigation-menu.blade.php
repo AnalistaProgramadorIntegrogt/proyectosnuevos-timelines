@@ -23,6 +23,10 @@
                     <x-nav-link href="{{ route('templates.index') }}" :active="request()->routeIs('templates.*')">
                         {{ __('Plantillas') }}
                     </x-nav-link>
+
+                    <x-nav-link href="{{ route('repository.index') }}" :active="request()->routeIs('repository.*')">
+                        {{ __('Repositorio') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -157,6 +161,10 @@
 
             <x-responsive-nav-link href="{{ route('templates.index') }}" :active="request()->routeIs('templates.*')">
                 {{ __('Plantillas') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link href="{{ route('repository.index') }}" :active="request()->routeIs('repository.*')">
+                {{ __('Repositorio') }}
             </x-responsive-nav-link>
         </div>
 

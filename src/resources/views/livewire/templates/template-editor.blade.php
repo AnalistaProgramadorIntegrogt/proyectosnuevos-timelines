@@ -247,6 +247,10 @@
                                                 <input wire:model="subtaskDurationDays" type="number" min="1"
                                                     class="w-16 rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs shadow-soft focus:border-primary-400 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
                                                     title="Días" />
+                                                <label class="inline-flex items-center text-xs text-gray-600 dark:text-gray-400">
+                                                    <input wire:model="subtaskIsDeliverable" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-primary-500 shadow-sm focus:ring-primary-400 dark:bg-gray-700" />
+                                                    <span class="ml-1.5">Entregable</span>
+                                                </label>
                                                 <button wire:click="saveSubtask({{ $gIndex }}, {{ $tIndex }}, {{ $sIndex }})"
                                                     class="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition">
                                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,6 +268,9 @@
                                             <span class="text-xs text-gray-400 dark:text-gray-500">#{{ $subtask['order'] }}</span>
                                             <span class="text-xs text-gray-700 dark:text-gray-300 flex-1 min-w-0 truncate">{{ $subtask['title'] }}</span>
                                             <span class="text-xs text-gray-500 dark:text-gray-500 shrink-0">{{ $subtask['duration_days'] ?? '-' }}d</span>
+                                            @if($subtask['is_deliverable'] ?? false)
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 shrink-0">Ent</span>
+                                            @endif
                                             <button wire:click="editSubtask({{ $gIndex }}, {{ $tIndex }}, {{ $sIndex }})"
                                                 class="text-gray-400 dark:text-gray-500 hover:text-primary-500 p-1 rounded hover:bg-primary-50 dark:hover:bg-primary-900/30 transition" title="Editar subtarea">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

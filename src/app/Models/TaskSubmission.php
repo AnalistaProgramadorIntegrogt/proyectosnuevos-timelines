@@ -13,6 +13,7 @@ class TaskSubmission extends Model
 
     protected $fillable = [
         'task_id',
+        'subtask_id',
         'deliverable_version_id',
         'submitter_id',
         'notes',
@@ -21,6 +22,11 @@ class TaskSubmission extends Model
     public function task(): BelongsTo
     {
         return $this->belongsTo(Task::class);
+    }
+
+    public function subtask(): BelongsTo
+    {
+        return $this->belongsTo(Subtask::class);
     }
 
     public function deliverableVersion(): BelongsTo

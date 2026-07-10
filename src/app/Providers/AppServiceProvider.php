@@ -20,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Support\Facades\Gate::define('manage-repository', function (\App\Models\User $user) {
+            return $user->hasRole(['admin', 'super-admin']) || $user->id === 1;
+        });
+
         // Status color blade directive
         Blade::directive('statuscolor', function ($expression) {
             return "<?php 

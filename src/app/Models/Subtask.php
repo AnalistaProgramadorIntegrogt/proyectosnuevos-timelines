@@ -18,6 +18,7 @@ class Subtask extends Model
         'start_date',
         'end_date',
         'status',
+        'is_deliverable',
         'responsible_user_id',
         'explicit_approver_id',
         'order',
@@ -29,11 +30,17 @@ class Subtask extends Model
         'end_date' => 'date',
         'status' => 'string',
         'order' => 'integer',
+        'is_deliverable' => 'boolean',
     ];
 
     public function task(): BelongsTo
     {
         return $this->belongsTo(Task::class);
+    }
+
+    public function deliverableVersions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(DeliverableVersion::class, 'subtask_id');
     }
 
     public function responsible(): BelongsTo

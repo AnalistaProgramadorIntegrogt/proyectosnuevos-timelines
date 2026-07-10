@@ -1,13 +1,11 @@
 # Proyectos Nuevos Hub
 
-Laravel 13 + Jetstream/Livewire application, backed by PostgreSQL, served via
-PHP-FPM + Nginx. Docker Compose is used for both local development and
-production.
+Aplicación Laravel 13 + Jetstream/Livewire, con base de datos PostgreSQL, servida a través de PHP-FPM + Nginx. Se utiliza Docker Compose tanto para el desarrollo local como para producción.
 
-There are two separate Compose stacks:
+Existen dos stacks de Compose separados:
 
-- `docker-compose.local.yml` — local development (this repo, on your machine)
-- `docker-compose.yml` — production (runs on the server behind Caddy)
+- `docker-compose.local.yml` — desarrollo local (este repositorio, en tu máquina)
+- `docker-compose.yml` — producción (se ejecuta en el servidor detrás de Caddy)
 
 They do not share containers, networks, or volumes, so both can exist without
 conflicting.

@@ -112,10 +112,12 @@ class TaskController extends Controller
 
         $beforeData = $task->only(array_keys($validated));
 
-        $task->update($validated);
+        $task->fill($validated);
+        $needsRecalculation = $task->isDirty('duration_days') || $task->isDirty('real_end_date');
+        $task->save();
 
-        // Recalculate timeline for the project when duration_days changes
-        if (isset($beforeData['duration_days']) && isset($validated['duration_days']) && $beforeData['duration_days'] != $validated['duration_days']) {
+        // Recalculate timeline for the project if duration or real end date changes
+        if ($needsRecalculation) {
             $this->recalculateTimeline($project);
             Artisan::call('tasks:update-statuses');
         }
@@ -228,8 +230,18 @@ class TaskController extends Controller
             foreach ($group->tasks->sortBy('order') as $t) {
                 $t->calculated_start_date = $currentDate->copy();
                 $t->calculated_end_date = $currentDate->copy()->addDays($t->duration_days - 1);
+                
+                if (is_null($t->baseline_end_date)) {
+                    $t->baseline_end_date = $t->calculated_end_date->copy();
+                }
+
                 $t->save();
-                $currentDate = $t->calculated_end_date->copy()->addDay();
+                
+                if ($t->real_end_date && Carbon::parse($t->real_end_date)->isAfter($t->calculated_end_date)) {
+                    $currentDate = Carbon::parse($t->real_end_date)->copy()->addDay();
+                } else {
+                    $currentDate = $t->calculated_end_date->copy()->addDay();
+                }
             }
         }
     }

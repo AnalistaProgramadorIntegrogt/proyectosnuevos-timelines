@@ -20,8 +20,14 @@
     <body class="font-brand antialiased">
         <x-banner />
 
-        <div class="min-h-screen bg-surface-muted">
-            @livewire('navigation-menu')
+        <div class="min-h-screen bg-surface-muted relative">
+            <!-- Watermark -->
+            <img src="{{ asset('IntegroM.png') }}" 
+                 class="fixed top-1/2 -translate-y-1/2 left-0 -translate-x-1/2 h-[80vh] w-auto max-w-none opacity-[0.03] dark:opacity-[0.02] pointer-events-none z-0" 
+                 alt="" />
+
+            <div class="relative z-10">
+                @livewire('navigation-menu')
 
             <!-- Page Heading -->
             @if (isset($header))
@@ -36,6 +42,7 @@
             <main>
                 {{ $slot }}
             </main>
+            </div>
         </div>
 
         @stack('modals')

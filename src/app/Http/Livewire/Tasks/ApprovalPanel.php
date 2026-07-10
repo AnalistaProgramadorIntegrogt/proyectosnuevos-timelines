@@ -13,6 +13,7 @@ use Livewire\Component;
 class ApprovalPanel extends Component
 {
     public Task $task;
+    public ?\App\Models\Subtask $subtask = null;
 
     public $reason = '';
 
@@ -27,18 +28,23 @@ class ApprovalPanel extends Component
         'reason.max' => 'La razón no puede exceder los 5000 caracteres.',
     ];
 
-    public function mount(Task $task)
+    public function mount(Task $task, $subtask = null)
     {
-        $this->task = $task->load([
-            'submissions',
-            'submissions.submitter',
-            'submissions.deliverableVersion',
-            'submissions.approvalDecision',
-            'submissions.approvalDecision.approver',
-            'projectGroup',
-            'projectGroup.project',
-            'explicitApprover',
-        ]);
+        $this->task = $task;
+        if ($subtask) {
+            $this->subtask = $subtask;
+        } else {
+            $this->task->load([
+                'submissions',
+                'submissions.submitter',
+                'submissions.deliverableVersion',
+                'submissions.approvalDecision',
+                'submissions.approvalDecision.approver',
+                'projectGroup',
+                'projectGroup.project',
+                'explicitApprover',
+            ]);
+        }
     }
 
     public function canApprove(): bool
@@ -69,12 +75,23 @@ class ApprovalPanel extends Component
         return false;
     }
 
+    protected function getTarget()
+    {
+        return $this->subtask ?? $this->task;
+    }
+
     public function getLatestSubmissionProperty()
     {
-        return $this->task->submissions()
-            ->with(['submitter', 'deliverableVersion', 'approvalDecision.approver'])
-            ->orderBy('created_at', 'desc')
-            ->first();
+        $query = TaskSubmission::with(['submitter', 'deliverableVersion', 'approvalDecision.approver'])
+            ->orderBy('created_at', 'desc');
+
+        if ($this->subtask) {
+            $query->where('subtask_id', $this->subtask->id);
+        } else {
+            $query->where('task_id', $this->task->id)->whereNull('subtask_id');
+        }
+
+        return $query->first();
     }
 
     public function approve()
@@ -100,6 +117,7 @@ class ApprovalPanel extends Component
         }
 
         $user = Auth::user();
+        $target = $this->getTarget();
 
         // Create approval decision
         $decision = $latestSubmission->approvalDecision()->create([
@@ -108,8 +126,8 @@ class ApprovalPanel extends Component
             'note' => null,
         ]);
 
-        // Update task status
-        $this->task->update(['status' => 'aprobado']);
+        // Update target status
+        $target->update(['status' => 'aprobado']);
 
         // Audit log
         AuditEvent::create([
@@ -122,18 +140,21 @@ class ApprovalPanel extends Component
             'after_data' => [
                 'submission_id' => $latestSubmission->id,
                 'decision' => 'approved',
+                'subtask_id' => $this->subtask ? $this->subtask->id : null,
             ],
-            'reason' => 'Aprobación de entregable para la tarea: ' . $this->task->title,
+            'reason' => 'Aprobación de entregable para ' . ($this->subtask ? 'subtarea: ' . $this->subtask->title : 'la tarea: ' . $this->task->title),
             'ip_address' => request()->ip(),
         ]);
 
-        $this->task->refresh();
-        $this->task->load([
-            'submissions.submitter',
-            'submissions.deliverableVersion',
-            'submissions.approvalDecision',
-            'submissions.approvalDecision.approver',
-        ]);
+        $target->refresh();
+        if (!$this->subtask) {
+            $this->task->load([
+                'submissions.submitter',
+                'submissions.deliverableVersion',
+                'submissions.approvalDecision',
+                'submissions.approvalDecision.approver',
+            ]);
+        }
 
         session()->flash('flash.banner', 'Entregable aprobado exitosamente.');
     }
@@ -163,6 +184,7 @@ class ApprovalPanel extends Component
         }
 
         $user = Auth::user();
+        $target = $this->getTarget();
 
         // Create rejection decision
         $decision = $latestSubmission->approvalDecision()->create([
@@ -171,8 +193,8 @@ class ApprovalPanel extends Component
             'note' => $this->reason,
         ]);
 
-        // Update task status
-        $this->task->update(['status' => 'rechazado']);
+        // Update target status
+        $target->update(['status' => 'rechazado']);
 
         // Audit log
         AuditEvent::create([
@@ -186,21 +208,24 @@ class ApprovalPanel extends Component
                 'submission_id' => $latestSubmission->id,
                 'decision' => 'rejected',
                 'reason' => $this->reason,
+                'subtask_id' => $this->subtask ? $this->subtask->id : null,
             ],
-            'reason' => 'Rechazo de entregable para la tarea: ' . $this->task->title . ' — Razón: ' . $this->reason,
+            'reason' => 'Rechazo de entregable para ' . ($this->subtask ? 'subtarea: ' . $this->subtask->title : 'la tarea: ' . $this->task->title) . ' — Razón: ' . $this->reason,
             'ip_address' => request()->ip(),
         ]);
 
         $this->showRejectModal = false;
         $this->reason = '';
 
-        $this->task->refresh();
-        $this->task->load([
-            'submissions.submitter',
-            'submissions.deliverableVersion',
-            'submissions.approvalDecision',
-            'submissions.approvalDecision.approver',
-        ]);
+        $target->refresh();
+        if (!$this->subtask) {
+            $this->task->load([
+                'submissions.submitter',
+                'submissions.deliverableVersion',
+                'submissions.approvalDecision',
+                'submissions.approvalDecision.approver',
+            ]);
+        }
 
         session()->flash('flash.banner', 'Entregable rechazado.');
     }
@@ -208,16 +233,24 @@ class ApprovalPanel extends Component
     public function render()
     {
         $latestSubmission = $this->latestSubmission;
-        $approvalHistory = $this->task->submissions()
-            ->with(['submitter', 'deliverableVersion', 'approvalDecision.approver'])
+        
+        $query = TaskSubmission::with(['submitter', 'deliverableVersion', 'approvalDecision.approver'])
             ->whereHas('approvalDecision')
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc');
+
+        if ($this->subtask) {
+            $query->where('subtask_id', $this->subtask->id);
+        } else {
+            $query->where('task_id', $this->task->id)->whereNull('subtask_id');
+        }
+
+        $approvalHistory = $query->get();
 
         return view('livewire.tasks.approval-panel', [
             'latestSubmission' => $latestSubmission,
             'approvalHistory' => $approvalHistory,
             'canApprove' => $this->canApprove(),
+            'isSubtask' => $this->subtask !== null,
         ]);
     }
 }

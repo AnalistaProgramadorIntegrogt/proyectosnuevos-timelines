@@ -15,12 +15,14 @@ class TemplateSubtask extends Model
         'title',
         'description',
         'duration_days',
+        'is_deliverable',
         'order',
     ];
 
     protected $casts = [
         'duration_days' => 'integer',
         'order' => 'integer',
+        'is_deliverable' => 'boolean',
     ];
 
     public function templateTask(): BelongsTo
