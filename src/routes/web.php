@@ -3,15 +3,25 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
 });
+
+// Azure OAuth Routes
+Route::get('/auth/microsoft', [App\Http\Controllers\Auth\AzureAuthController::class, 'redirect'])->name('auth.microsoft');
+Route::get('/auth/microsoft/callback', [App\Http\Controllers\Auth\AzureAuthController::class, 'callback'])->name('auth.microsoft.callback');
 
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-        Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    
+    // User Management (Admin Only)
+    Route::resource('users', App\Http\Controllers\UserController::class)->middleware('can:manage-users');
 
     Route::get('/projects', [App\Http\Controllers\ProjectController::class, 'index'])->name('projects.index');
     Route::get('/projects/create', [App\Http\Controllers\ProjectController::class, 'create'])->name('projects.create');

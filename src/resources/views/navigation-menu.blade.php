@@ -27,6 +27,12 @@
                     <x-nav-link href="{{ route('repository.index') }}" :active="request()->routeIs('repository.*')">
                         {{ __('Repositorio') }}
                     </x-nav-link>
+
+                    @can('manage-users')
+                        <x-nav-link href="{{ route('users.index') }}" :active="request()->routeIs('users.*')">
+                            {{ __('Usuarios') }}
+                        </x-nav-link>
+                    @endcan
                 </div>
             </div>
 
@@ -166,6 +172,12 @@
             <x-responsive-nav-link href="{{ route('repository.index') }}" :active="request()->routeIs('repository.*')">
                 {{ __('Repositorio') }}
             </x-responsive-nav-link>
+
+            @can('manage-users')
+                <x-responsive-nav-link href="{{ route('users.index') }}" :active="request()->routeIs('users.*')">
+                    {{ __('Usuarios') }}
+                </x-responsive-nav-link>
+            @endcan
         </div>
 
         <!-- Responsive Settings Options -->

@@ -14,9 +14,13 @@ class ProjectList extends Component
     public function mount()
     {
         $user = Auth::user();
-        $ownedIds = Project::where('owner_id', $user->id)->pluck('id');
-        $memberIds = ProjectMember::where('user_id', $user->id)->pluck('project_id');
-        $this->projects = Project::whereIn('id', $ownedIds->merge($memberIds)->unique())->get();
+        if ($user->hasRole('super-admin')) {
+            $this->projects = Project::all();
+        } else {
+            $ownedIds = Project::where('owner_id', $user->id)->pluck('id');
+            $memberIds = ProjectMember::where('user_id', $user->id)->pluck('project_id');
+            $this->projects = Project::whereIn('id', $ownedIds->merge($memberIds)->unique())->get();
+        }
     }
 
     public function render()

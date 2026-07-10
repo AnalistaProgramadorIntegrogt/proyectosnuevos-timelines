@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Event;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,7 +22,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Event::listen(
+            SocialiteWasCalled::class,
+            [\SocialiteProviders\Azure\AzureExtendSocialite::class, 'handle']
+        );
         \Illuminate\Support\Facades\Gate::define('manage-repository', function (\App\Models\User $user) {
+            return $user->hasRole(['admin', 'super-admin']) || $user->id === 1;
+        });
+        
+        \Illuminate\Support\Facades\Gate::define('manage-users', function (\App\Models\User $user) {
             return $user->hasRole(['admin', 'super-admin']) || $user->id === 1;
         });
 

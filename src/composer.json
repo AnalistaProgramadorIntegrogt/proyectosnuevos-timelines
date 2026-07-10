@@ -10,8 +10,10 @@
         "laravel/framework": "^13.8",
         "laravel/jetstream": "^5.5",
         "laravel/sanctum": "^4.0",
+        "laravel/socialite": "*",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^3.6.4",
+        "socialiteproviders/microsoft-azure": "*",
         "spatie/laravel-permission": "^8.1"
     },
     "require-dev": {

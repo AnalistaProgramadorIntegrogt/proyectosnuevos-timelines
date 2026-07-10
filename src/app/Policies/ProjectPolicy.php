@@ -11,6 +11,13 @@ class ProjectPolicy
 {
     use HandlesAuthorization;
 
+    public function before(User $user, $ability)
+    {
+        if ($user->hasRole('super-admin')) {
+            return true;
+        }
+    }
+
     public function view(User $user, Project $project)
     {
         $member = ProjectMember::where('project_id', $project->id)->where('user_id', $user->id)->first();
