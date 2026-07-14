@@ -75,6 +75,10 @@
                     <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-muted-200 dark:bg-muted-700"></div>
 
                     <div class="space-y-6">
+                        @php
+                            $inEvaluationStage = true;
+                            $hasRenderedExecutionHeader = false;
+                        @endphp
                         @foreach($timelineData->sortBy('order') as $group)
                             @php
                                 $isGate = $group->is_gate;
@@ -85,6 +89,24 @@
                                 $allTasksApproved = $totalTasks > 0 && $group->tasks->every(fn($t) => $t->status === 'aprobado');
                                 $hasGateDecision = $group->relationLoaded('gateDecision') && $group->gateDecision;
                             @endphp
+
+                            <!-- Stage Headers -->
+                            @if($inEvaluationStage && $loop->first)
+                                <div class="relative pl-16 pt-2 pb-0">
+                                    <div class="absolute left-[31px] top-1/2 w-4 border-t-2 border-dashed border-blue-400 dark:border-blue-600"></div>
+                                    <h2 class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                                        Etapa de Evaluación
+                                    </h2>
+                                </div>
+                            @elseif(!$inEvaluationStage && !$hasRenderedExecutionHeader)
+                                <div class="relative pl-16 pt-6 pb-0">
+                                    <div class="absolute left-[31px] top-[calc(50%+12px)] w-4 border-t-2 border-dashed border-[var(--integro-gray)]"></div>
+                                    <h2 class="text-xs font-bold text-[var(--integro-gray)] uppercase tracking-wider">
+                                        Etapa de Ejecución
+                                    </h2>
+                                </div>
+                                @php $hasRenderedExecutionHeader = true; @endphp
+                            @endif
 
                             <!-- Group Section -->
                             <div class="relative pl-16 @if($isLocked) opacity-60 @endif">
@@ -323,12 +345,12 @@
 
                                                         <!-- Task metadata -->
                                                         <div class="mt-2 flex items-center gap-4 flex-wrap text-xs text-muted-500 dark:text-muted-400">
-                                                            @if($task->responsible)
-                                                                <span class="inline-flex items-center gap-1">
+                                                            @if($task->responsibles->count() > 0)
+                                                                <span class="inline-flex items-center gap-1" title="Responsables">
                                                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                                     </svg>
-                                                                    {{ $task->responsible->name }}
+                                                                    {{ $task->responsibles->pluck('name')->join(', ') }}
                                                                 </span>
                                                             @endif
                                                             @if($task->calculated_end_date)
@@ -383,6 +405,12 @@
                                     @endif
                                 </div>
                             </div>
+
+                            @if($isGate)
+                                @php
+                                    $inEvaluationStage = false;
+                                @endphp
+                            @endif
                         @endforeach
                     </div>
                 </div>

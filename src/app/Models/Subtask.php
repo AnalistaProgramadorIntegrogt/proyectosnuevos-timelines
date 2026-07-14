@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Subtask extends Model
 {
@@ -43,13 +44,13 @@ class Subtask extends Model
         return $this->hasMany(DeliverableVersion::class, 'subtask_id');
     }
 
-    public function responsible(): BelongsTo
+    public function responsibles(): BelongsToMany
     {
-        return $this->belongsTo(User::class, 'responsible_user_id');
+        return $this->belongsToMany(User::class, 'subtask_responsibles');
     }
 
-    public function explicitApprover(): BelongsTo
+    public function approvers(): BelongsToMany
     {
-        return $this->belongsTo(User::class, 'explicit_approver_id');
+        return $this->belongsToMany(User::class, 'subtask_approvers');
     }
 }

@@ -58,7 +58,7 @@
                                     <td class="px-6 py-4 text-text-secondary">{{ $user->email }}</td>
                                     <td class="px-6 py-4">
                                         @foreach($user->roles as $role)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[var(--integro-blue)] text-white">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[var(--integro-blue)] text-black">
                                                 {{ ucfirst($role->name) }}
                                             </span>
                                         @endforeach

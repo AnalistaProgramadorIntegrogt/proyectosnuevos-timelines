@@ -74,34 +74,41 @@
                             <x-input-error for="status" class="mt-2" />
                         </div>
 
-                        <!-- Responsible User -->
+                        <!-- Responsible Users -->
                         <div>
-                            <label for="responsible_user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Responsable
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Responsables
                             </label>
-                            <select id="responsible_user_id" name="responsible_user_id"
-                                class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                <option value="">— Sin asignar —</option>
+                            <div class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm h-32 overflow-y-auto p-2 space-y-1">
                                 @foreach($users as $user)
-                                    <option value="{{ $user->id }}" @selected(old('responsible_user_id', $task->responsible_user_id) == $user->id)>{{ $user->name }}</option>
+                                    <label class="flex items-center text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-1 rounded">
+                                        <input type="checkbox" name="responsible_users[]" value="{{ $user->id }}"
+                                               class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-2"
+                                               @checked(in_array($user->id, old('responsible_users', $task->responsibles->pluck('id')->toArray())))>
+                                        {{ $user->name }}
+                                    </label>
                                 @endforeach
-                            </select>
-                            <x-input-error for="responsible_user_id" class="mt-2" />
+                            </div>
+                            <x-input-error for="responsible_users" class="mt-2" />
                         </div>
 
-                        <!-- Explicit Approver -->
+                        <!-- Explicit Approvers -->
                         <div>
-                            <label for="explicit_approver_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Aprobador explícito
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Aprobadores explícitos
                             </label>
-                            <select id="explicit_approver_id" name="explicit_approver_id"
-                                class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                <option value="">— Sin asignar —</option>
+                            <div class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm h-32 overflow-y-auto p-2 space-y-1">
                                 @foreach($users as $user)
-                                    <option value="{{ $user->id }}" @selected(old('explicit_approver_id', $task->explicit_approver_id) == $user->id)>{{ $user->name }}</option>
+                                    <label class="flex items-center text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-1 rounded">
+                                        <input type="checkbox" name="approver_users[]" value="{{ $user->id }}"
+                                               class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-2"
+                                               @checked(in_array($user->id, old('approver_users', $task->approvers->pluck('id')->toArray())))>
+                                        {{ $user->name }}
+                                    </label>
                                 @endforeach
-                            </select>
-                            <x-input-error for="explicit_approver_id" class="mt-2" />
+                            </div>
+                            <p class="text-xs text-muted-500 mt-1">Si no se selecciona ninguno, se usará el aprobador por defecto del proyecto.</p>
+                            <x-input-error for="approver_users" class="mt-2" />
                         </div>
                     </div>
 

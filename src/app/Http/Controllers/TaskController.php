@@ -25,8 +25,8 @@ class TaskController extends Controller
             'submissions.deliverableVersion',
             'submissions.approvalDecision.approver',
             'submissions.submitter',
-            'responsible',
-            'explicitApprover',
+            'responsibles',
+            'approvers',
             'auditEvents.user',
         ]);
 
@@ -43,15 +43,16 @@ class TaskController extends Controller
         $canReopen = in_array($task->status, ['entregado', 'aprobado', 'rechazado'])
             && Auth::user()->can('update', $project);
 
-        // Determine effective approver (task-specific override or project default)
-        $effectiveApprover = null;
-        if ($task->explicit_approver_id) {
-            $effectiveApprover = $task->explicitApprover;
+        // Determine effective approvers (task-specific override or project default)
+        $effectiveApprovers = collect();
+        if ($task->approvers->isNotEmpty()) {
+            $effectiveApprovers = $task->approvers;
         } elseif ($project->default_approver_id) {
-            $effectiveApprover = \App\Models\User::find($project->default_approver_id);
+            $default = \App\Models\User::find($project->default_approver_id);
+            if ($default) $effectiveApprovers->push($default);
         }
 
-        return view('tasks.show', compact('task', 'project', 'canSubmit', 'canEdit', 'canReopen', 'effectiveApprover'));
+        return view('tasks.show', compact('task', 'project', 'canSubmit', 'canEdit', 'canReopen', 'effectiveApprovers'));
     }
 
     /**
@@ -61,8 +62,8 @@ class TaskController extends Controller
     {
         $task->load([
             'projectGroup.project',
-            'responsible',
-            'explicitApprover',
+            'responsibles',
+            'approvers',
         ]);
 
         $project = $task->projectGroup->project;
@@ -70,12 +71,12 @@ class TaskController extends Controller
         $this->authorize('update', $project);
 
         // Gather available users — project members with a fallback to all users
+        $memberIds = $project->members()->pluck('user_id');
+        
         $users = User::query()
-            ->whereHas('projects', function ($q) use ($project) {
-                $q->where('project_id', $project->id);
-            })
-            ->orWhere('id', $task->responsible_user_id)
-            ->orWhere('id', $task->explicit_approver_id)
+            ->whereIn('id', $memberIds)
+            ->orWhereIn('id', $task->responsibles->pluck('id'))
+            ->orWhereIn('id', $task->approvers->pluck('id'))
             ->orderBy('name')
             ->get();
 
@@ -100,8 +101,10 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'duration_days' => 'required|integer|min:1|max:30',
-            'responsible_user_id' => 'nullable|exists:users,id',
-            'explicit_approver_id' => 'nullable|exists:users,id',
+            'responsible_users' => 'nullable|array',
+            'responsible_users.*' => 'exists:users,id',
+            'approver_users' => 'nullable|array',
+            'approver_users.*' => 'exists:users,id',
             // Status is not directly editable from the form; auto-managed by the system
         ]);
 
@@ -110,11 +113,19 @@ class TaskController extends Controller
             $validated['status'] = $request->status;
         }
 
-        $beforeData = $task->only(array_keys($validated));
+        $beforeData = $task->toArray();
 
-        $task->fill($validated);
+        $task->fill($request->except(['responsible_users', 'approver_users']));
         $needsRecalculation = $task->isDirty('duration_days') || $task->isDirty('real_end_date');
         $task->save();
+        
+        if ($request->has('responsible_users')) {
+            $task->responsibles()->sync($request->input('responsible_users', []));
+        }
+
+        if ($request->has('approver_users')) {
+            $task->approvers()->sync($request->input('approver_users', []));
+        }
 
         // Recalculate timeline for the project if duration or real end date changes
         if ($needsRecalculation) {
@@ -147,8 +158,9 @@ class TaskController extends Controller
     {
         $project = $task->projectGroup->project;
 
-        // Only the responsible user or an authorized user can submit
-        if (Auth::id() !== $task->responsible_user_id && !Auth::user()->can('update', $project)) {
+        // Only one of the responsibles or an authorized user can submit
+        $isResponsible = $task->responsibles->contains('id', Auth::id());
+        if (!$isResponsible && !Auth::user()->can('update', $project)) {
             abort(403, 'No tienes permiso para entregar esta tarea.');
         }
 

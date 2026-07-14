@@ -88,6 +88,19 @@
                             </div>
                             <x-input-error for="role" class="mt-2" />
                         </div>
+                        
+                        <div>
+                            <x-label for="boss_id" value="{{ __('Jefe Directo (Opcional)') }}" />
+                            <select id="boss_id" name="boss_id" class="mt-1 block w-full border-surface-border bg-surface dark:bg-surface-elevated text-text-primary rounded-md shadow-sm focus:ring-[var(--integro-red)] focus:border-[var(--integro-red)] sm:text-sm">
+                                <option value="">Ninguno</option>
+                                @foreach($users as $userOption)
+                                    <option value="{{ $userOption->id }}" {{ old('boss_id') == $userOption->id ? 'selected' : '' }}>
+                                        {{ $userOption->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <x-input-error for="boss_id" class="mt-2" />
+                        </div>
                     </div>
 
                     <div class="mt-8 flex justify-end gap-3">

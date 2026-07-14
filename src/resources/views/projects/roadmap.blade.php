@@ -50,6 +50,11 @@
         
         /* Arrow path */
         .gantt .arrow { stroke: #94a3b8; stroke-width: 1.5; }
+
+        /* Subtasks styling */
+        .gantt .subtask-bar .bar { fill: #94a3b8 !important; opacity: 0.8; height: 16px !important; margin-top: 4px; }
+        .gantt .subtask-bar .bar-progress { fill: #475569 !important; }
+        .gantt .subtask-bar .bar-label { fill: #1e293b; font-size: 10px; font-weight: normal; }
         
         /* Popup */
         .gantt-container .popup-wrapper {
@@ -88,6 +93,23 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
+                        <form method="GET" action="{{ route('projects.roadmap', $project) }}" class="flex items-center gap-4 mr-4">
+                            <select name="task_id" class="rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm py-1.5 pl-3 pr-8 shadow-soft" onchange="this.form.submit()">
+                                <option value="">Todas las tareas</option>
+                                @foreach($project->groups as $group)
+                                    <optgroup label="{{ $group->name }}">
+                                        @foreach($group->tasks as $task)
+                                            <option value="{{ $task->id }}" {{ (isset($taskIdFilter) && $taskIdFilter == $task->id) ? 'selected' : '' }}>{{ $task->title }}</option>
+                                        @endforeach
+                                    </optgroup>
+                                @endforeach
+                            </select>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="show_subtasks" value="1" class="sr-only peer" onchange="this.form.submit()" {{ $showSubtasks ? 'checked' : '' }}>
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                                <span class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Mostrar subtareas</span>
+                            </label>
+                        </form>
                         <a href="{{ route('projects.show', $project) }}" class="btn-secondary text-xs !px-3 !py-1 flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />

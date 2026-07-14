@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
@@ -46,14 +47,14 @@ class Task extends Model
         return $this->belongsTo(ProjectGroup::class);
     }
 
-    public function responsible(): BelongsTo
+    public function responsibles(): BelongsToMany
     {
-        return $this->belongsTo(User::class, 'responsible_user_id');
+        return $this->belongsToMany(User::class, 'task_responsibles');
     }
 
-    public function explicitApprover(): BelongsTo
+    public function approvers(): BelongsToMany
     {
-        return $this->belongsTo(User::class, 'explicit_approver_id');
+        return $this->belongsToMany(User::class, 'task_approvers');
     }
 
     public function subtasks(): HasMany

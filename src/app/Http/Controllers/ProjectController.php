@@ -83,7 +83,8 @@ class ProjectController extends Controller
                 $q->orderBy('order');
             },
             'groups.tasks.subtasks',
-            'groups.tasks.responsible',
+            'groups.tasks.responsibles',
+            'groups.tasks.approvers',
             'groups.tasks.deliverableVersions',
             'groups.gateDecision',
             'groups.gateDecision.decisionMaker',
@@ -145,16 +146,20 @@ class ProjectController extends Controller
             'groups.tasks.subtasks'
         ]);
 
+        $showSubtasks = request()->boolean('show_subtasks');
+        $taskIdFilter = request('task_id');
+
         $ganttTasks = [];
         
         foreach ($project->groups->sortBy('order') as $group) {
             foreach ($group->tasks->sortBy('order') as $task) {
+                if ($taskIdFilter && $task->id != $taskIdFilter) continue;
                 if (!$task->calculated_start_date || !$task->calculated_end_date) continue;
                 
                 // Determine progress based on subtasks if any, or status
                 $progress = 0;
                 if ($task->subtasks->count() > 0) {
-                    $completedSubtasks = $task->subtasks->where('status', 'entregado')->count();
+                    $completedSubtasks = $task->subtasks->whereIn('status', ['entregado', 'aprobado'])->count();
                     $progress = round(($completedSubtasks / $task->subtasks->count()) * 100);
                 } elseif (in_array($task->status, ['entregado', 'aprobado'])) {
                     $progress = 100;
@@ -170,10 +175,29 @@ class ProjectController extends Controller
                     'custom_class' => 'status-' . str_replace('_', '-', $task->status),
                     'task_id' => $task->id, // custom metadata
                 ];
+
+                if ($showSubtasks) {
+                    foreach ($task->subtasks->sortBy('order') as $subtask) {
+                        if (!$subtask->start_date || !$subtask->end_date) continue;
+
+                        $subProgress = in_array($subtask->status, ['entregado', 'aprobado']) ? 100 : 0;
+
+                        $ganttTasks[] = [
+                            'id' => 'subtask_' . $subtask->id,
+                            'name' => '↳ ' . $subtask->title,
+                            'start' => $subtask->start_date->format('Y-m-d'),
+                            'end' => $subtask->end_date->copy()->addDay()->format('Y-m-d'),
+                            'progress' => $subProgress,
+                            'dependencies' => 'task_' . $task->id,
+                            'custom_class' => 'status-' . str_replace('_', '-', $subtask->status) . ' subtask-bar',
+                            'task_id' => $task->id, // link back to parent task
+                        ];
+                    }
+                }
             }
         }
 
-        return view('projects.roadmap', compact('project', 'ganttTasks'));
+        return view('projects.roadmap', compact('project', 'ganttTasks', 'showSubtasks', 'taskIdFilter'));
     }
 
     /**
@@ -256,9 +280,16 @@ class ProjectController extends Controller
                     'status' => 'en_proceso',
                 ]);
 
+                if (!empty($taskData['responsible_users'])) {
+                    $task->responsibles()->sync($taskData['responsible_users']);
+                }
+                if (!empty($taskData['approver_users'])) {
+                    $task->approvers()->sync($taskData['approver_users']);
+                }
+
                 $subOrder = 1;
                 foreach (($taskData['subtasks'] ?? []) as $subData) {
-                    $task->subtasks()->create([
+                    $subtask = $task->subtasks()->create([
                         'title' => $subData['title'],
                         'description' => $subData['description'] ?? '',
                         'duration_days' => $subData['duration_days'],
@@ -266,6 +297,13 @@ class ProjectController extends Controller
                         'order' => $subOrder++,
                         'status' => 'en_proceso',
                     ]);
+
+                    if (!empty($subData['responsible_users'])) {
+                        $subtask->responsibles()->sync($subData['responsible_users']);
+                    }
+                    if (!empty($subData['approver_users'])) {
+                        $subtask->approvers()->sync($subData['approver_users']);
+                    }
                 }
             }
 

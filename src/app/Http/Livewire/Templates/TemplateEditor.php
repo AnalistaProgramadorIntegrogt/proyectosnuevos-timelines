@@ -31,11 +31,15 @@ class TemplateEditor extends Component
     public $taskDurationDays = 1;
     public $taskIsRequired = false;
     public $taskIsDeliverable = false;
+    public $taskResponsibleUsers = [];
+    public $taskApproverUsers = [];
 
     public $subtaskTitle = '';
     public $subtaskDescription = '';
     public $subtaskDurationDays = 1;
     public $subtaskIsDeliverable = false;
+    public $subtaskResponsibleUsers = [];
+    public $subtaskApproverUsers = [];
 
     // Version notes
     public $versionNotes = '';
@@ -204,6 +208,8 @@ class TemplateEditor extends Component
             'duration_days' => (int) $this->taskDurationDays,
             'is_required' => $this->taskIsRequired,
             'is_deliverable' => $this->taskIsDeliverable,
+            'responsible_users' => $this->taskResponsibleUsers,
+            'approver_users' => $this->taskApproverUsers,
             'subtasks' => [],
         ];
         $groups[$groupIndex]['tasks'] = $tasks;
@@ -227,6 +233,8 @@ class TemplateEditor extends Component
         $this->taskDurationDays = $task['duration_days'] ?? 1;
         $this->taskIsRequired = $task['is_required'] ?? false;
         $this->taskIsDeliverable = $task['is_deliverable'] ?? false;
+        $this->taskResponsibleUsers = $task['responsible_users'] ?? [];
+        $this->taskApproverUsers = $task['approver_users'] ?? [];
     }
 
     public function cancelEditTask()
@@ -251,6 +259,8 @@ class TemplateEditor extends Component
         $groups[$groupIndex]['tasks'][$taskIndex]['duration_days'] = (int) $this->taskDurationDays;
         $groups[$groupIndex]['tasks'][$taskIndex]['is_required'] = $this->taskIsRequired;
         $groups[$groupIndex]['tasks'][$taskIndex]['is_deliverable'] = $this->taskIsDeliverable;
+        $groups[$groupIndex]['tasks'][$taskIndex]['responsible_users'] = $this->taskResponsibleUsers;
+        $groups[$groupIndex]['tasks'][$taskIndex]['approver_users'] = $this->taskApproverUsers;
         $this->setGroups($groups);
 
         $this->editingTaskGroupIndex = null;
@@ -311,6 +321,8 @@ class TemplateEditor extends Component
         $this->taskDurationDays = 1;
         $this->taskIsRequired = false;
         $this->taskIsDeliverable = false;
+        $this->taskResponsibleUsers = [];
+        $this->taskApproverUsers = [];
     }
 
     // ── Subtask CRUD ──
@@ -331,6 +343,8 @@ class TemplateEditor extends Component
             'description' => $this->subtaskDescription ?? '',
             'duration_days' => (int) $this->subtaskDurationDays,
             'is_deliverable' => $this->subtaskIsDeliverable,
+            'responsible_users' => $this->subtaskResponsibleUsers,
+            'approver_users' => $this->subtaskApproverUsers,
             'order' => count($subtasks) + 1,
         ];
         $groups[$groupIndex]['tasks'][$taskIndex]['subtasks'] = $subtasks;
@@ -355,6 +369,8 @@ class TemplateEditor extends Component
         $this->subtaskDescription = $sub['description'] ?? '';
         $this->subtaskDurationDays = $sub['duration_days'] ?? 1;
         $this->subtaskIsDeliverable = $sub['is_deliverable'] ?? false;
+        $this->subtaskResponsibleUsers = $sub['responsible_users'] ?? [];
+        $this->subtaskApproverUsers = $sub['approver_users'] ?? [];
     }
 
     public function cancelEditSubtask()
@@ -379,6 +395,8 @@ class TemplateEditor extends Component
         $groups[$groupIndex]['tasks'][$taskIndex]['subtasks'][$subtaskIndex]['description'] = $this->subtaskDescription ?? '';
         $groups[$groupIndex]['tasks'][$taskIndex]['subtasks'][$subtaskIndex]['duration_days'] = (int) $this->subtaskDurationDays;
         $groups[$groupIndex]['tasks'][$taskIndex]['subtasks'][$subtaskIndex]['is_deliverable'] = $this->subtaskIsDeliverable;
+        $groups[$groupIndex]['tasks'][$taskIndex]['subtasks'][$subtaskIndex]['responsible_users'] = $this->subtaskResponsibleUsers;
+        $groups[$groupIndex]['tasks'][$taskIndex]['subtasks'][$subtaskIndex]['approver_users'] = $this->subtaskApproverUsers;
         $this->setGroups($groups);
 
         $this->editingSubtaskGroupIndex = null;
@@ -440,6 +458,8 @@ class TemplateEditor extends Component
         $this->subtaskDescription = '';
         $this->subtaskDurationDays = 1;
         $this->subtaskIsDeliverable = false;
+        $this->subtaskResponsibleUsers = [];
+        $this->subtaskApproverUsers = [];
     }
 
     // ── Persistence ──
@@ -524,6 +544,14 @@ class TemplateEditor extends Component
                 $task->is_required = $taskData['is_required'] ?? false;
                 $task->is_deliverable = $taskData['is_deliverable'] ?? false;
                 $task->save();
+                
+                if (isset($taskData['responsible_users'])) {
+                    $task->responsibles()->sync($taskData['responsible_users']);
+                }
+                if (isset($taskData['approver_users'])) {
+                    $task->approvers()->sync($taskData['approver_users']);
+                }
+
                 $newTaskIds[] = $task->id;
 
                 // Sync subtasks
@@ -547,6 +575,14 @@ class TemplateEditor extends Component
                     $subtask->duration_days = $subtaskData['duration_days'] ?? 1;
                     $subtask->order = $subtaskData['order'];
                     $subtask->save();
+
+                    if (isset($subtaskData['responsible_users'])) {
+                        $subtask->responsibles()->sync($subtaskData['responsible_users']);
+                    }
+                    if (isset($subtaskData['approver_users'])) {
+                        $subtask->approvers()->sync($subtaskData['approver_users']);
+                    }
+
                     $newSubtaskIds[] = $subtask->id;
                 }
 
@@ -572,6 +608,7 @@ class TemplateEditor extends Component
     {
         return view('livewire.templates.template-editor', [
             'groups' => $this->groups,
+            'users' => \App\Models\User::orderBy('name')->get(),
         ]);
     }
 }

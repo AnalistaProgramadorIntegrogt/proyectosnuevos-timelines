@@ -1,6 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Task;
+use App\Models\User;
+use App\Mail\TaskStartsSoonMail;
+
+Route::get('/mail-preview', function () {
+    $task = Task::first() ?? new Task(['title' => 'Diseño de Planos Estructurales']);
+    $user = User::first() ?? new User(['name' => 'Arquitecto Prueba']);
+    return new TaskStartsSoonMail($task, $user, 1);
+});
 
 Route::get('/', function () {
     if (auth()->check()) {

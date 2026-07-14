@@ -234,15 +234,35 @@
                                                 </span>
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap">
-                                                <select onchange="saveTask({{ $task->id }}, 'responsible_user_id', this.value)"
-                                                        class="text-xs border border-[var(--border-soft)] rounded px-2 py-1.5 bg-surface text-text-primary focus:ring-2 focus:ring-[var(--integro-red)] w-full max-w-[11rem]">
-                                                    <option value="">— Sin asignar —</option>
-                                                    @foreach($users as $user)
-                                                        <option value="{{ $user->id }}" @if($task->responsible_user_id === $user->id) selected @endif>
-                                                            {{ $user->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                                <div x-data="multiSelect({
+                                                        options: [
+                                                            @foreach($users as $user)
+                                                                { id: {{ $user->id }}, name: '{{ addslashes($user->name) }}' },
+                                                            @endforeach
+                                                        ],
+                                                        selected: [{{ $task->responsibles->pluck('id')->implode(',') }}],
+                                                        taskId: {{ $task->id }}
+                                                    })" class="relative w-full max-w-[11rem]">
+                                                    <div @click="open = !open" @click.away="open = false" class="text-xs border border-[var(--border-soft)] rounded px-2 py-1.5 bg-surface text-text-primary cursor-pointer flex justify-between items-center min-h-[32px]">
+                                                        <div class="truncate pr-2">
+                                                            <template x-if="selected.length === 0">
+                                                                <span class="text-text-muted">— Sin asignar —</span>
+                                                            </template>
+                                                            <template x-if="selected.length > 0">
+                                                                <span x-text="selectedNames"></span>
+                                                            </template>
+                                                        </div>
+                                                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                    </div>
+                                                    <div x-show="open" class="absolute z-50 w-full mt-1 bg-surface border border-[var(--border-soft)] rounded shadow-lg max-h-48 overflow-y-auto" style="display: none;">
+                                                        <template x-for="option in options" :key="option.id">
+                                                            <label class="flex items-center px-3 py-2 hover:bg-[var(--surface-muted)] cursor-pointer">
+                                                                <input type="checkbox" :value="option.id" x-model.number="selected" @change="update" class="rounded border-[var(--border-soft)] text-[var(--integro-red)] focus:ring-[var(--integro-red)] h-3 w-3 mr-2">
+                                                                <span x-text="option.name" class="text-xs text-text-primary"></span>
+                                                            </label>
+                                                        </template>
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap text-sm text-text-muted start-date-cell">
                                                 {{ $task->calculated_start_date ? $task->calculated_start_date->format('d/m/Y') : '—' }}
@@ -598,6 +618,25 @@
                         this.saving = false;
                     });
                 },
+            }));
+
+            Alpine.data('multiSelect', (config) => ({
+                options: config.options,
+                selected: config.selected,
+                taskId: config.taskId,
+                open: false,
+                
+                get selectedNames() {
+                    if (this.selected.length === 0) return '';
+                    if (this.selected.length === 1) {
+                        return this.options.find(o => o.id === this.selected[0])?.name || '';
+                    }
+                    return this.selected.length + ' asignados';
+                },
+                
+                update() {
+                    saveTask(this.taskId, 'responsible_users', this.selected);
+                }
             }));
         });
 

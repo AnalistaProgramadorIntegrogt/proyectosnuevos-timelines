@@ -210,6 +210,8 @@ class RoleManager extends Component
         $this->showCreateForm = false;
         $this->project->refresh();
         $this->project->load('roles');
+        
+        $this->dispatch('rolesUpdated');
 
         session()->flash('flash.banner', 'Rol "' . $role->name . '" creado exitosamente.');
     }
@@ -307,6 +309,8 @@ class RoleManager extends Component
         $this->cancelEdit();
         $this->project->refresh();
         $this->project->load('roles');
+        
+        $this->dispatch('rolesUpdated');
 
         session()->flash('flash.banner', 'Rol "' . $role->name . '" actualizado exitosamente.');
     }
@@ -356,6 +360,8 @@ class RoleManager extends Component
 
         $this->project->refresh();
         $this->project->load('roles');
+        
+        $this->dispatch('rolesUpdated');
 
         session()->flash('flash.banner', 'Rol "' . $roleName . '" eliminado.');
     }

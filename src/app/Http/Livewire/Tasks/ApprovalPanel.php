@@ -42,7 +42,7 @@ class ApprovalPanel extends Component
                 'submissions.approvalDecision.approver',
                 'projectGroup',
                 'projectGroup.project',
-                'explicitApprover',
+                'approvers',
             ]);
         }
     }
@@ -58,8 +58,9 @@ class ApprovalPanel extends Component
             return true;
         }
 
-        // Explicit approver can approve
-        if ($this->task->explicit_approver_id === $user->id) {
+        // Explicit approvers can approve
+        $target = $this->getTarget();
+        if ($target->approvers->contains('id', $user->id)) {
             return true;
         }
 

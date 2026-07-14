@@ -36,6 +36,7 @@ class User extends Authenticatable
         'email',
         'password',
         'azure_id',
+        'boss_id',
     ];
 
     /**
@@ -89,5 +90,13 @@ class User extends Authenticatable
     public function ownedProjects(): HasMany
     {
         return $this->hasMany(Project::class, 'owner_id');
+    }
+
+    /**
+     * Get the user's boss.
+     */
+    public function boss()
+    {
+        return $this->belongsTo(User::class, 'boss_id');
     }
 }

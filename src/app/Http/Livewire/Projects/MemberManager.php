@@ -8,6 +8,7 @@ use App\Models\ProjectMember;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 class MemberManager extends Component
 {
@@ -98,6 +99,16 @@ class MemberManager extends Component
         $this->project->load(['members.user', 'members.role']);
 
         session()->flash('flash.banner', 'Miembro agregado exitosamente: ' . $user->name);
+    }
+
+    #[On('rolesUpdated')]
+    public function refreshRoles()
+    {
+        $this->project->refresh();
+        $this->project->load(['members.user', 'members.role', 'roles']);
+        if (!$this->project->roles->contains('id', $this->selectedRole)) {
+            $this->selectedRole = $this->project->roles->first()?->id ?? '';
+        }
     }
 
     public function confirmRemoveMember($memberId)

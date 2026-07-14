@@ -167,6 +167,24 @@
                                                     <span class="ml-1.5">Entregable</span>
                                                 </label>
                                             </div>
+                                            <div class="flex flex-wrap items-center gap-3">
+                                                <div class="flex-1 min-w-[150px]">
+                                                    <label class="text-xs text-gray-500 dark:text-gray-400">Responsables</label>
+                                                    <select multiple wire:model="taskResponsibleUsers" class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs shadow-soft h-20">
+                                                        @foreach($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="flex-1 min-w-[150px]">
+                                                    <label class="text-xs text-gray-500 dark:text-gray-400">Aprobadores explícitos</label>
+                                                    <select multiple wire:model="taskApproverUsers" class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs shadow-soft h-20">
+                                                        @foreach($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
                                             <div class="flex items-center gap-1 pt-1">
                                                 <button wire:click="saveTask({{ $gIndex }}, {{ $tIndex }})"
                                                     class="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition" title="Guardar tarea">
@@ -251,6 +269,26 @@
                                                     <input wire:model="subtaskIsDeliverable" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-primary-500 shadow-sm focus:ring-primary-400 dark:bg-gray-700" />
                                                     <span class="ml-1.5">Entregable</span>
                                                 </label>
+                                            </div>
+                                            <div class="flex flex-wrap items-center gap-2 mt-2">
+                                                <div class="flex-1 min-w-[120px]">
+                                                    <label class="text-xs text-gray-500 dark:text-gray-400">Responsables</label>
+                                                    <select multiple wire:model="subtaskResponsibleUsers" class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs shadow-soft h-16">
+                                                        @foreach($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="flex-1 min-w-[120px]">
+                                                    <label class="text-xs text-gray-500 dark:text-gray-400">Aprobadores explícitos</label>
+                                                    <select multiple wire:model="subtaskApproverUsers" class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs shadow-soft h-16">
+                                                        @foreach($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-1 mt-2">
                                                 <button wire:click="saveSubtask({{ $gIndex }}, {{ $tIndex }}, {{ $sIndex }})"
                                                     class="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/30 transition">
                                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

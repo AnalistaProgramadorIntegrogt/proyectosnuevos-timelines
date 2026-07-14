@@ -25,7 +25,8 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::all();
-        return view('users.create', compact('roles'));
+        $users = User::orderBy('name')->get();
+        return view('users.create', compact('roles', 'users'));
     }
 
     /**
@@ -38,12 +39,14 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|exists:roles,name',
+            'boss_id' => 'nullable|exists:users,id',
         ]);
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'boss_id' => $validated['boss_id'] ?? null,
         ]);
 
         $user->assignRole($validated['role']);
@@ -58,7 +61,8 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::all();
-        return view('users.edit', compact('user', 'roles'));
+        $users = User::where('id', '!=', $user->id)->orderBy('name')->get();
+        return view('users.edit', compact('user', 'roles', 'users'));
     }
 
     /**
@@ -77,10 +81,12 @@ class UserController extends Controller
             ],
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|exists:roles,name',
+            'boss_id' => 'nullable|exists:users,id',
         ]);
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
+        $user->boss_id = $validated['boss_id'] ?? null;
 
         if ($request->filled('password')) {
             $user->password = Hash::make($validated['password']);

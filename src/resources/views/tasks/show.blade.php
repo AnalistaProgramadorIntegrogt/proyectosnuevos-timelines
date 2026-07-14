@@ -98,15 +98,15 @@
                     <div class="bg-surface-elevated dark:bg-surface-dark-elevated rounded-lg p-4">
                         <span class="text-xs text-muted-500 dark:text-muted-400 uppercase tracking-wider font-medium">Responsable</span>
                         <p class="mt-1 font-semibold text-gray-900 dark:text-white">
-                            {{ $task->responsible?->name ?? '—' }}
+                            {{ $task->responsibles->pluck('name')->implode(', ') ?: '—' }}
                         </p>
                     </div>
                     <div class="bg-surface-elevated dark:bg-surface-dark-elevated rounded-lg p-4">
                         <span class="text-xs text-muted-500 dark:text-muted-400 uppercase tracking-wider font-medium">Aprobador efectivo</span>
                         <p class="mt-1 font-semibold text-gray-900 dark:text-white">
-                            {{ $effectiveApprover?->name ?? '—' }}
-                            @if($task->explicit_approver_id)
-                                <span class="ml-1 text-xs text-primary-500">(asignado)</span>
+                            {{ $effectiveApprovers->pluck('name')->implode(', ') ?: '—' }}
+                            @if($task->approvers->isNotEmpty())
+                                <span class="ml-1 text-xs text-primary-500">(asignados)</span>
                             @elseif($project->default_approver_id)
                                 <span class="ml-1 text-xs text-muted-400">(por defecto del proyecto)</span>
                             @endif
@@ -389,7 +389,7 @@
                             <p class="text-xs text-muted-500 dark:text-muted-400 mt-1">
                                 Esta tarea requiere que subas un archivo entregable.
                                 Una vez lo subas, el estado cambiará automáticamente a <strong>entregado</strong>
-                                y <strong>{{ $effectiveApprover?->name ?? 'el aprobador' }}</strong> podrá aprobarla o rechazarla.
+                                y <strong>{{ $effectiveApprovers->pluck('name')->implode(', ') ?: 'el aprobador' }}</strong> podrá aprobarla o rechazarla.
                             </p>
                         </div>
                     </div>

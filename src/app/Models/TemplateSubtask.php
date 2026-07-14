@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class TemplateSubtask extends Model
 {
@@ -28,5 +29,15 @@ class TemplateSubtask extends Model
     public function templateTask(): BelongsTo
     {
         return $this->belongsTo(TemplateTask::class);
+    }
+
+    public function responsibles(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'template_subtask_responsibles');
+    }
+
+    public function approvers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'template_subtask_approvers');
     }
 }

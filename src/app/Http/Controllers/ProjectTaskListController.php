@@ -28,7 +28,8 @@ class ProjectTaskListController extends Controller
             'groups.tasks' => function ($q) {
                 $q->orderBy('order');
             },
-            'groups.tasks.responsible',
+            'groups.tasks.responsibles',
+            'groups.tasks.approvers',
         ]);
 
         // Gather project members for the responsible dropdown
@@ -59,17 +60,28 @@ class ProjectTaskListController extends Controller
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'responsible_user_id' => 'nullable|exists:users,id',
+            'responsible_users' => 'nullable|array',
+            'responsible_users.*' => 'exists:users,id',
+            'approver_users' => 'nullable|array',
+            'approver_users.*' => 'exists:users,id',
             'duration_days' => 'sometimes|required|integer|min:1|max:30',
             'real_end_date' => 'nullable|date',
             'is_deliverable' => 'sometimes|boolean',
         ]);
 
-        $beforeData = $task->only(array_keys($validated));
+        $beforeData = $task->toArray();
 
-        $task->fill($validated);
+        $task->fill($request->except(['responsible_users', 'approver_users']));
         $needsRecalculation = $task->isDirty('duration_days') || $task->isDirty('real_end_date');
         $task->save();
+
+        if ($request->has('responsible_users')) {
+            $task->responsibles()->sync($request->input('responsible_users', []));
+        }
+
+        if ($request->has('approver_users')) {
+            $task->approvers()->sync($request->input('approver_users', []));
+        }
 
         // Recalculate timeline if duration or real_end_date changed
         if ($needsRecalculation) {
@@ -94,7 +106,7 @@ class ProjectTaskListController extends Controller
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'task' => $task->fresh()->load('responsible'),
+                'task' => $task->fresh()->load('responsibles', 'approvers'),
             ]);
         }
 
@@ -222,7 +234,7 @@ class ProjectTaskListController extends Controller
         ]);
 
         if ($request->expectsJson() || $request->ajax()) {
-            $task->load('responsible');
+            $task->load('responsibles', 'approvers');
             return response()->json([
                 'success' => true,
                 'task' => $task,

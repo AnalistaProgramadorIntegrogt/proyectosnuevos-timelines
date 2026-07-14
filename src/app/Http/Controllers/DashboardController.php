@@ -28,10 +28,28 @@ class DashboardController extends Controller
             ->where('archived', false)
             ->count();
 
-        // Proyectos "en-proceso"
+        // Proyectos "en evaluación" (gate no aprobado)
+        $enEvaluacion = Project::whereIn('id', $visibleProjectIds)
+            ->where('archived', false)
+            ->where('lifecycle_status', 'en_proceso')
+            ->whereHas('groups', function ($q) {
+                $q->where('is_gate', true)
+                  ->where('status', '!=', 'completed_viable');
+            })
+            ->count();
+
+        // Proyectos "en proceso" (gate aprobado o sin gate)
         $enProceso = Project::whereIn('id', $visibleProjectIds)
             ->where('archived', false)
             ->where('lifecycle_status', 'en_proceso')
+            ->where(function ($query) {
+                $query->whereHas('groups', function ($q) {
+                    $q->where('is_gate', true)
+                      ->where('status', 'completed_viable');
+                })->orWhereDoesntHave('groups', function ($q) {
+                    $q->where('is_gate', true);
+                });
+            })
             ->count();
 
         // Proyectos "atrasados" (end_date < now AND status NOT in entregado/aprobado/rechazado)
@@ -87,6 +105,7 @@ class DashboardController extends Controller
 
         return view('dashboard', compact(
             'totalProyectos',
+            'enEvaluacion',
             'enProceso',
             'atrasados',
             'entregadosAprobados',
