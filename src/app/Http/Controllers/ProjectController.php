@@ -133,6 +133,10 @@ class ProjectController extends Controller
      */
     public function roadmap(Project $project)
     {
+        if (!auth()->user()->hasRole('super-admin')) {
+            abort(403, 'Solo los administradores pueden ver el roadmap.');
+        }
+
         $this->authorize('view', $project);
 
         $project->load([
