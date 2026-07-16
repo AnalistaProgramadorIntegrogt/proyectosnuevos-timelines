@@ -60,7 +60,7 @@ Route::middleware([
     Route::delete('/projects/groups/{group}', [App\Http\Controllers\ProjectTaskListController::class, 'deleteGroup'])->name('projects.groups.delete');
     Route::post('/projects/{project}/groups/reorder', [App\Http\Controllers\ProjectTaskListController::class, 'reorderGroups'])->name('projects.groups.reorder');
 
-    Route::prefix('templates')->name('templates.')->group(function () {
+    Route::prefix('templates')->name('templates.')->middleware('can:manage-templates')->group(function () {
         Route::get('/', [App\Http\Controllers\TemplateController::class, 'index'])->name('index');
         Route::get('/{template}/edit', [App\Http\Controllers\TemplateController::class, 'edit'])->name('edit');
         Route::get('/{template}/versions', [App\Http\Controllers\TemplateController::class, 'versions'])->name('versions');
