@@ -1,10 +1,10 @@
 <div class="space-y-3">
     @forelse($projects as $project)
-        <div class="flex justify-between items-center p-4 border border-[var(--border-soft)] bg-surface hover:border-[var(--integro-gray)] transition-colors duration-150">
+        <a href="{{ route('projects.show', $project) }}" class="flex justify-between items-center p-4 border border-[var(--border-soft)] bg-surface hover:border-[var(--integro-gray)] transition-colors duration-150 group block">
             <div>
-                <a href="{{ route('projects.show', $project) }}" class="text-sm font-semibold text-text-primary hover:text-[var(--integro-red)] transition-colors">
+                <span class="text-sm font-semibold text-text-primary group-hover:text-[var(--integro-red)] transition-colors">
                     {{ $project->name }}
-                </a>
+                </span>
                 <div class="flex gap-3 mt-1 text-xs text-text-muted">
                     @if($project->code)
                         <span class="font-mono text-[var(--integro-gray)]">{{ "[$project->code]" }}</span>
@@ -24,7 +24,7 @@
                        ($project->lifecycle_status === 'ongoing' ? 'En curso' : $project->lifecycle_status) }}
                 </span>
             </div>
-        </div>
+        </a>
     @empty
         <div class="text-center py-12">
             <svg class="w-10 h-10 mx-auto text-[var(--integro-gray-text)]/40 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
