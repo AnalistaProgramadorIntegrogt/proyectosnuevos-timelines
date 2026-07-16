@@ -17,6 +17,7 @@ class RoleAndPermissionSeeder extends Seeder
         Permission::create(['name' => 'manage-templates']);
         Permission::create(['name' => 'manage-settings']);
         Permission::create(['name' => 'view-all-projects']);
+        Permission::create(['name' => 'manage-repository']);
         
         // Create roles and assign permissions
         $admin = Role::create(['name' => 'super-admin']);
@@ -24,5 +25,8 @@ class RoleAndPermissionSeeder extends Seeder
         
         $user = Role::create(['name' => 'user']);
         $user->givePermissionTo([]);
+
+        $mercadeo = Role::create(['name' => 'mercadeo']);
+        $mercadeo->givePermissionTo(['manage-repository']);
     }
 }
