@@ -47,7 +47,7 @@ class AzureAuthController extends Controller
                     'password' => bcrypt(Str::random(24)), // Random password since they use OAuth
                     'azure_id' => $azureUser->getId(),
                 ]);
-                $user->assignRole('usuario');
+                $user->assignRole('user');
             }
             
             Auth::login($user, true);

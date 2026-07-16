@@ -33,7 +33,7 @@ class CreateNewUser implements CreatesNewUsers
         ]);
 
         // Auto-assign default role
-        $user->assignRole('usuario');
+        $user->assignRole('user');
 
         return $user;
     }
